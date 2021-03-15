@@ -50,10 +50,10 @@
         End If
 
     End Sub
-    Public Sub InsertEntity(DbTableName As String, ByVal entity As Entity)
+    Public Function InsertEntity(DbTableName As String, ByVal entity As Entity) As Integer
         'Declare
         Dim query As String
-        Dim qResult As Integer
+        Dim qResult As Integer = 0
         'Setup query 
         If DbTableName = "entity" Then
             'Set query parameters
@@ -61,7 +61,7 @@
         ElseIf DbTableName = "address" Then
             query = "INSERT INTO address(entity_id, street, city, zip_code, country, primary_address) VALUES (" & entity.ID & ",'" & entity.Street(0) & "','" & entity.City(0) & "','" & entity.ZIP_code(0) & "','" & entity.Country_code(0) & "','" & "Yes')"
         Else
-            query = "INSERT INTO bank_details(entity_id, account_number, bank_code, iban_code, bic_code) VALUES (" & entity.ID & ",'" & entity.Bank_account(0) & "','" & entity.Bank_code(0) & "','" & entity.Iban(0) & entity.Bic_code(0) & "')"
+            query = "INSERT INTO bank_details(entity_id, account_number, bank_code, iban_code, bic_code) VALUES (" & entity.ID & ",'" & entity.Bank_account(0) & "','" & entity.Bank_code(0) & "','" & entity.Iban(0) & "','" & entity.Bic_code(0) & "')"
         End If
         'Try to connect to DB
         Dim status As String
@@ -72,21 +72,16 @@
             status = connection.State.ToString()
         Catch ex As Exception
             MessageBox.Show("Error connecting to database", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Return
+            Return qResult
         End Try
         'Execute Instruction
         Dim cmd As New Odbc.OdbcCommand(query, connection)
         qResult = cmd.ExecuteNonQuery()
         connection.Close()
 
-        'Report outcome
-        If qResult > 0 Then
-            'MessageBox.Show("Insert Successful")
-        Else
-            MessageBox.Show("Could not insert into the database")
-        End If
+        Return qResult
 
-    End Sub
+    End Function
     Public Sub ClearDetailForm()
         Dim cntrlList = New List(Of Control) From {DetailView.pnlBase, DetailView.pnlAddress, DetailView.pnlBank, DetailView.pnlType} 'Define panels in which the textboxes are nested
         For Each pnl As Panel In cntrlList
@@ -113,7 +108,12 @@
         For Each pnl As Panel In cntrlList
             For Each cnt As Control In pnl.Controls
                 If cnt.GetType Is GetType(TextBox) Then
-                    txtDict.Add(cnt.Name, cnt.Text)
+                    If cnt.Text = String.Empty Then
+                        txtDict.Add(cnt.Name, Nothing)
+                    Else
+                        txtDict.Add(cnt.Name, cnt.Text)
+                    End If
+
                 End If
             Next cnt
         Next

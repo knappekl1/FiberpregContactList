@@ -50,6 +50,9 @@
         Dim txtDict As Dictionary(Of String, String) = ReadDetailForm()
         Dim query As String
         Dim queryType As String
+        Dim qResult As Integer
+        Dim failed As Boolean = False
+
         'Instantiate entity and parse input data
         Dim updateEntity As New Entity
         ParseEntity(updateEntity, txtDict)
@@ -103,10 +106,19 @@
         End If
 
         If queryType = "INSERT" Then
-            InsertEntity("entity", updateEntity)
-            InsertEntity("address", updateEntity)
-            InsertEntity("Bank_details", updateEntity)
+            qResult = InsertEntity("entity", updateEntity)
+            If qResult = 0 Then failed = True
+            qResult = InsertEntity("address", updateEntity)
+            If qResult = 0 Then failed = True
+            qResult = InsertEntity("Bank_details", updateEntity)
+            If qResult = 0 Then failed = True
         End If
 
+        'Report Insert reuslt
+        If failed Then
+            MessageBox.Show("Could not insert into the database", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Else
+            MessageBox.Show("Insert data successful")
+        End If
     End Sub
 End Class
