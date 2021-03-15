@@ -105,20 +105,57 @@
             Return
         End If
 
+        'Execute insert and process results
         If queryType = "INSERT" Then
+            'execute query
             qResult = InsertEntity("entity", updateEntity)
             If qResult = 0 Then failed = True
             qResult = InsertEntity("address", updateEntity)
             If qResult = 0 Then failed = True
             qResult = InsertEntity("Bank_details", updateEntity)
             If qResult = 0 Then failed = True
+
+            'Report Insert result
+            If failed Then
+                MessageBox.Show("Could not insert into the database", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Else
+                MessageBox.Show("Insert data successful")
+            End If
+        ElseIf queryType = "UPDATE" Then
+            'Get original values as read from the database
+            Dim UpdateProps As Dictionary(Of String, String()) = getProperties(updateEntity)
+            Dim ReadInProps As Dictionary(Of String, String()) = getProperties(FindResult.SelectEntity)
+
+            'Compare changes
+            Dim changeProps As New Dictionary(Of String, String)
+            For Each item As KeyValuePair(Of String, String()) In ReadInProps
+                If Not String.Join("", item.Value).Equals(String.Join("", UpdateProps(item.Key))) Then
+                    changeProps.Add(item.Key, UpdateProps(item.Key)(0))
+                End If
+            Next
+
+            'If no changes, return
+            If changeProps.Count = 0 Then
+                MessageBox.Show("No changes in the data.", "INFO", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Return
+            End If
+
+            'Execute query
+            qResult = UpdateEntityDB("entity", updateEntity)
+            If qResult = 0 Then failed = True
+            qResult = UpdateEntityDB("address", updateEntity)
+            If qResult = 0 Then failed = True
+            qResult = UpdateEntityDB("Bank_details", updateEntity)
+            If qResult = 0 Then failed = True
+
+            'Report Insert result
+            If failed Then
+                MessageBox.Show("Could not update database", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Else
+                MessageBox.Show("Update data successful")
+            End If
         End If
 
-        'Report Insert reuslt
-        If failed Then
-            MessageBox.Show("Could not insert into the database", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-        Else
-            MessageBox.Show("Insert data successful")
-        End If
+
     End Sub
 End Class

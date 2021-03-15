@@ -43,4 +43,8 @@
         DetailView.Show()
 
     End Sub
+
+    Private Sub BtnExport_Click(sender As Object, e As EventArgs) Handles BtnExport.Click
+        MessageBox.Show("Exports the entire database")
+    End Sub
 End Class

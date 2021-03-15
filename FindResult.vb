@@ -1,5 +1,6 @@
 ﻿Public Class FindResult
     Public SelectedEntityID As String
+    Public SelectEntity = New Entity()
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
@@ -23,7 +24,7 @@
 
 
         'Instantiate new entity with selected ID and populate with details from database
-        Dim SelectEntity = New Entity()
+
         SelectEntity.LoadDetails(SelectedEntityID)
 
         'Show details in separate form (DetailView)

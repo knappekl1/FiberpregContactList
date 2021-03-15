@@ -54,15 +54,7 @@
         'Declare
         Dim query As String
         Dim qResult As Integer = 0
-        'Setup query 
-        If DbTableName = "entity" Then
-            'Set query parameters
-            query = "INSERT INTO entity(entity_id, entity_name, vat_number, entity_role) VALUES (" & entity.ID & ",'" & entity.Name & "','" & entity.VAT_number & "','" & entity.Role & "')"
-        ElseIf DbTableName = "address" Then
-            query = "INSERT INTO address(entity_id, street, city, zip_code, country, primary_address) VALUES (" & entity.ID & ",'" & entity.Street(0) & "','" & entity.City(0) & "','" & entity.ZIP_code(0) & "','" & entity.Country_code(0) & "','" & "Yes')"
-        Else
-            query = "INSERT INTO bank_details(entity_id, account_number, bank_code, iban_code, bic_code) VALUES (" & entity.ID & ",'" & entity.Bank_account(0) & "','" & entity.Bank_code(0) & "','" & entity.Iban(0) & "','" & entity.Bic_code(0) & "')"
-        End If
+
         'Try to connect to DB
         Dim status As String
         Dim connection As Odbc.OdbcConnection = New Odbc.OdbcConnection("DSN=FiberpregDB")
@@ -74,10 +66,101 @@
             MessageBox.Show("Error connecting to database", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return qResult
         End Try
-        'Execute Instruction
-        Dim cmd As New Odbc.OdbcCommand(query, connection)
-        qResult = cmd.ExecuteNonQuery()
-        connection.Close()
+
+        'Setup query 
+        If DbTableName = "entity" Then
+            'Set query parameters and run Query
+            query = "INSERT INTO entity(entity_id, entity_name, vat_number, entity_role) VALUES (?, ?, ?,?)"
+            Dim cmd As New Odbc.OdbcCommand(query, connection)
+            cmd.Parameters.AddWithValue("entity_id", entity.ID)
+            cmd.Parameters.AddWithValue("entity_name", entity.Name)
+            cmd.Parameters.AddWithValue("vat_number", If(String.IsNullOrEmpty(entity.VAT_number), DBNull.Value, entity.VAT_number))
+            cmd.Parameters.AddWithValue("role", entity.Role)
+            qResult = cmd.ExecuteNonQuery()
+            connection.Close()
+
+        ElseIf DbTableName = "address" Then
+            query = "INSERT INTO address(entity_id, street, city, zip_code, country, primary_address) VALUES (?, ?, ?, ?, ?,'Yes')"
+            Dim cmd As New Odbc.OdbcCommand(query, connection)
+            cmd.Parameters.AddWithValue("entity_id", entity.ID)
+            cmd.Parameters.AddWithValue("Street", If(String.IsNullOrEmpty(entity.Street(0)), DBNull.Value, entity.Street(0)))
+            cmd.Parameters.AddWithValue("City", If(String.IsNullOrEmpty(entity.City(0)), DBNull.Value, entity.City(0)))
+            cmd.Parameters.AddWithValue("ZIP_code", If(String.IsNullOrEmpty(entity.ZIP_code(0)), DBNull.Value, entity.ZIP_code(0)))
+            cmd.Parameters.AddWithValue("Country_code", If(String.IsNullOrEmpty(entity.Country_code(0)), DBNull.Value, entity.Country_code(0)))
+
+            qResult = cmd.ExecuteNonQuery()
+            connection.Close()
+        Else
+            query = "INSERT INTO bank_details(entity_id, account_number, bank_code, iban_code, bic_code) VALUES (?, ?, ?, ?, ?)"
+            Dim cmd As New Odbc.OdbcCommand(query, connection)
+            cmd.Parameters.AddWithValue("entity_id", entity.ID)
+            cmd.Parameters.AddWithValue("Bank_account", If(String.IsNullOrEmpty(entity.Bank_account(0)), DBNull.Value, entity.Bank_account(0)))
+            cmd.Parameters.AddWithValue("Bank_code", If(String.IsNullOrEmpty(entity.Bank_code(0)), DBNull.Value, entity.Bank_code(0)))
+            cmd.Parameters.AddWithValue("Iban", If(String.IsNullOrEmpty(entity.Iban(0)), DBNull.Value, entity.Iban(0)))
+            cmd.Parameters.AddWithValue("Bic_code", If(String.IsNullOrEmpty(entity.Bic_code(0)), DBNull.Value, entity.Bic_code(0)))
+
+            qResult = cmd.ExecuteNonQuery()
+            connection.Close()
+        End If
+
+        Return qResult
+
+    End Function
+
+    Public Function UpdateEntityDB(DbTableName As String, ByVal entity As Entity) As Integer
+        'Declare
+        Dim query As String
+        Dim qResult As Integer = 0
+
+        'Try to connect to DB
+        Dim status As String
+        Dim connection As Odbc.OdbcConnection = New Odbc.OdbcConnection("DSN=FiberpregDB")
+        Try
+            connection.Open()
+            System.Console.WriteLine("State: " + connection.State.ToString())
+            status = connection.State.ToString()
+        Catch ex As Exception
+            MessageBox.Show("Error connecting to database", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return qResult
+        End Try
+
+        'Setup query 
+        If DbTableName = "entity" Then
+            'Set query parameters and run Query
+            query = "UPDATE entity SET (entity_name, vat_number, entity_role) = (?,?,?) WHERE entity_id = ?"
+            Dim cmd As New Odbc.OdbcCommand(query, connection)
+
+            cmd.Parameters.AddWithValue("entity_name", entity.Name)
+            cmd.Parameters.AddWithValue("vat_number", If(String.IsNullOrEmpty(entity.VAT_number), DBNull.Value, entity.VAT_number))
+            cmd.Parameters.AddWithValue("role", entity.Role)
+            cmd.Parameters.AddWithValue("entity_id", entity.ID)
+
+            qResult = cmd.ExecuteNonQuery()
+            connection.Close()
+
+        ElseIf DbTableName = "address" Then
+            query = "UPDATE address SET (street, city, zip_code, country) = (?,?,?,?) WHERE entity_id = ?"
+            Dim cmd As New Odbc.OdbcCommand(query, connection)
+            cmd.Parameters.AddWithValue("Street", If(String.IsNullOrEmpty(entity.Street(0)), DBNull.Value, entity.Street(0)))
+            cmd.Parameters.AddWithValue("City", If(String.IsNullOrEmpty(entity.City(0)), DBNull.Value, entity.City(0)))
+            cmd.Parameters.AddWithValue("ZIP_code", If(String.IsNullOrEmpty(entity.ZIP_code(0)), DBNull.Value, entity.ZIP_code(0)))
+            cmd.Parameters.AddWithValue("Country_code", If(String.IsNullOrEmpty(entity.Country_code(0)), DBNull.Value, entity.Country_code(0)))
+            cmd.Parameters.AddWithValue("entity_id", entity.ID)
+
+            qResult = cmd.ExecuteNonQuery()
+            connection.Close()
+        Else
+            query = "UPDATE bank_details SET (account_number, bank_code, iban_code, bic_code) = (?,?,?,?) WHERE entity_id = ?"
+            Dim cmd As New Odbc.OdbcCommand(query, connection)
+            cmd.Parameters.AddWithValue("Bank_account", If(String.IsNullOrEmpty(entity.Bank_account(0)), DBNull.Value, entity.Bank_account(0)))
+            cmd.Parameters.AddWithValue("Bank_code", If(String.IsNullOrEmpty(entity.Bank_code(0)), DBNull.Value, entity.Bank_code(0)))
+            cmd.Parameters.AddWithValue("Iban", If(String.IsNullOrEmpty(entity.Iban(0)), DBNull.Value, entity.Iban(0)))
+            cmd.Parameters.AddWithValue("Bic_code", If(String.IsNullOrEmpty(entity.Bic_code(0)), DBNull.Value, entity.Bic_code(0)))
+            cmd.Parameters.AddWithValue("entity_id", entity.ID)
+
+            qResult = cmd.ExecuteNonQuery()
+            connection.Close()
+        End If
 
         Return qResult
 
@@ -144,4 +227,21 @@
         'Dim outputText As String = $"{txtDict("txtID")}; {txtDict("txtName")}; {txtDict("txtVatNo")}; {txtDict("txtStreet")}; {txtDict("txtCity")};_
         '{txtDict("txtZip")}; {txtDict("txtCountry")}; {txtDict("txtAccount")}; {txtDict("txtBankCode")}; {txtDict("txtIBAN")}; {txtDict("txtBIC")}"
     End Sub
+
+    Public Function getProperties(entity As Entity) As Dictionary(Of String, String())
+        Dim propDict As New Dictionary(Of String, String())
+        Dim compareType() As Reflection.PropertyInfo = entity.GetType().GetProperties()
+        For Each prop As Reflection.PropertyInfo In compareType
+            Dim propValue(0) As String
+            Dim propType As String = prop.PropertyType.Name()
+            If Not prop.PropertyType.Name().Equals("String") Then
+                propValue = prop.GetValue(entity)
+                propDict.Add(prop.Name, propValue)
+            Else
+                propValue(0) = prop.GetValue(entity)
+                propDict.Add(prop.Name, propValue)
+            End If
+        Next prop
+        Return propDict
+    End Function
 End Module
