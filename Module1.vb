@@ -1,4 +1,5 @@
-﻿Module Module1
+﻿Imports System.Text
+Module Module1
     Public Function GetEntity(queryString As String) As DataTable
 
         'Connect DB and log status
@@ -15,7 +16,7 @@
         End Try
 
         Dim command As Odbc.OdbcCommand = New Odbc.OdbcCommand(query, connection)
-            Dim reader As Odbc.OdbcDataReader = command.ExecuteReader(CommandBehavior.CloseConnection)
+        Dim reader As Odbc.OdbcDataReader = command.ExecuteReader(CommandBehavior.CloseConnection)
         Dim results As New DataTable
         results.Load(reader)
 
@@ -243,5 +244,24 @@
             End If
         Next prop
         Return propDict
+    End Function
+
+    Public Function CSVBuilder(dt As DataTable, sep As String) As String
+        Dim sCSV As New StringBuilder()
+
+        'Headers
+        Dim delimeter As String = ""
+        For Each col As DataColumn In dt.Columns ' Select(Func(col) col.ColumnName)
+            If col.ColumnName.Contains(sep) Then col.ColumnName = """" & col.ColumnName & """"
+            sCSV.Append(delimeter).Append(col)
+            delimeter = sep
+        Next
+        sCSV.AppendLine()
+
+        For Each row As DataRow In dt.Rows
+            sCSV.AppendLine(String.Join(sep, (From rw In row.ItemArray Select If(rw.ToString.Trim.Contains(sep), String.Format("""{0}""", rw.ToString.Trim), rw.ToString.Trim))))
+        Next
+
+        Return sCSV.ToString
     End Function
 End Module

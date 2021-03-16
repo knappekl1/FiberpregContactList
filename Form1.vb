@@ -45,6 +45,10 @@
     End Sub
 
     Private Sub BtnExport_Click(sender As Object, e As EventArgs) Handles BtnExport.Click
-        MessageBox.Show("Exports the entire database")
+        Export.Show()
+    End Sub
+
+    Private Sub BtnImport_Click(sender As Object, e As EventArgs) Handles BtnImport.Click
+        MessageBox.Show("Not implemented yet. Manual imports needed. Call me.")
     End Sub
 End Class
