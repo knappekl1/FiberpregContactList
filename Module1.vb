@@ -1,4 +1,5 @@
 ﻿Imports System.Text
+Imports System.IO
 Module Module1
     Public Function GetEntity(queryString As String) As DataTable
 
@@ -246,6 +247,21 @@ Module Module1
         Return propDict
     End Function
 
+
+    Public Sub setProperties(ByRef entity As Entity, ByVal property_name As String, ByVal property_value As String) 'Nefunguje SetValue pro typy string()
+
+        Dim compareType As Reflection.PropertyInfo = entity.GetType().GetProperty(property_name)
+        Dim propValue(0) As String
+        propValue(0) = property_value
+
+        If Not compareType.PropertyType.Name().Equals("String") Then
+            compareType.SetValue(entity, propValue)
+        Else
+            compareType.SetValue(entity, property_value)
+        End If
+
+        Return
+    End Sub
     Public Function CSVBuilder(dt As DataTable, sep As String) As String
         Dim sCSV As New StringBuilder()
 
@@ -264,4 +280,27 @@ Module Module1
 
         Return sCSV.ToString
     End Function
+
+    Public Function csvToDatatable(ByVal filename As String, ByVal separator As String) As DataTable
+        Dim dt As New System.Data.DataTable
+        Dim firstLine As Boolean = True
+        If File.Exists(filename) Then
+            Using sr As New StreamReader(filename)
+                While Not sr.EndOfStream
+                    If firstLine Then
+                        firstLine = False
+                        Dim cols = sr.ReadLine.Split(separator)
+                        For Each col In cols
+                            dt.Columns.Add(New DataColumn(col, GetType(String)))
+                        Next
+                    Else
+                        Dim data() As String = sr.ReadLine.Split(separator)
+                        dt.Rows.Add(data.ToArray)
+                    End If
+                End While
+            End Using
+        End If
+        Return dt
+    End Function
+
 End Module

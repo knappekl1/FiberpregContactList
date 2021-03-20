@@ -49,6 +49,6 @@
     End Sub
 
     Private Sub BtnImport_Click(sender As Object, e As EventArgs) Handles BtnImport.Click
-        MessageBox.Show("Not implemented yet. Manual imports needed. Call me.")
+        Import.Show()
     End Sub
 End Class
