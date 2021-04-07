@@ -75,7 +75,7 @@ Partial Class LandingForm
         '
         Me.Label3.Enabled = False
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(238, Byte))
-        Me.Label3.Location = New System.Drawing.Point(67, 121)
+        Me.Label3.Location = New System.Drawing.Point(67, 115)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(227, 67)
         Me.Label3.TabIndex = 2
@@ -85,7 +85,7 @@ Partial Class LandingForm
         '
         Me.Label4.Enabled = False
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(238, Byte))
-        Me.Label4.Location = New System.Drawing.Point(67, 310)
+        Me.Label4.Location = New System.Drawing.Point(67, 300)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(257, 49)
         Me.Label4.TabIndex = 2
@@ -123,7 +123,7 @@ Partial Class LandingForm
         Me.BtnImport.Name = "BtnImport"
         Me.BtnImport.Size = New System.Drawing.Size(160, 52)
         Me.BtnImport.TabIndex = 3
-        Me.BtnImport.Text = "Import from File"
+        Me.BtnImport.Text = "Import from File (.csv)"
         Me.BtnImport.UseVisualStyleBackColor = True
         '
         'BtnExport
